@@ -1,0 +1,9 @@
+### 유저 생성
+POST http://localhost:4000/user/signup
+Content-Type: application/json
+
+{
+  "nickname": "Stevenkim",
+  "email": "stevenkim@gmail.com",
+  "password": "12345678"
+}
