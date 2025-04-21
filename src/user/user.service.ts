@@ -3,10 +3,16 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { LoginUserDto } from './dto/LoginUserDto';
 import * as bcrypt from 'bcryptjs';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService, // 환경 변수 사용을 위함.
+    private readonly jwtService: JwtService, // JWT 서비스 사용을 위함.
+  ) {}
 
   async createUser(user: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -46,8 +52,33 @@ export class UserService {
       throw new BadRequestException('비밀번호가 일치하지 않습니다.');
     }
 
+    const accessTokenSecret =
+      this.configService.get<string>('JWT_ACCESS_SECRET');
+    const refreshTokenSecret =
+      this.configService.get<string>('JWT_REFRESH_SECRET');
+
     // password를 제외한 유저 정보
-    const { password, ...userInfo } = existingUser;
-    return userInfo;
+    return {
+      accessToken: await this.jwtService.signAsync(
+        {
+          sub: existingUser.id,
+          type: 'access',
+        },
+        {
+          secret: accessTokenSecret,
+          expiresIn: '10m',
+        },
+      ),
+      refreshToken: await this.jwtService.signAsync(
+        {
+          sub: existingUser.id,
+          type: 'refresh',
+        },
+        {
+          secret: refreshTokenSecret,
+          expiresIn: '1d',
+        },
+      ),
+    };
   }
 }
