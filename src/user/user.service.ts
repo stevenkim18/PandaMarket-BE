@@ -82,12 +82,13 @@ export class UserService {
   async parseBearerToken(rawToken: string, isRefreshToken: boolean) {
     const bearerSplit = rawToken.split(' ');
 
+    // 미들웨어에서 이미 검증하고 있음. 나중에 필요하면 삭제.
+
     if (bearerSplit.length !== 2) {
       throw new BadRequestException('토큰 포맷이 잘못되었습니다.');
     }
 
     const [bearer, token] = bearerSplit;
-    console.log(bearer, token);
 
     if (bearer !== 'Bearer') {
       throw new BadRequestException('토큰 타입이 잘못되었습니다.');

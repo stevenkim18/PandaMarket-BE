@@ -19,7 +19,9 @@ export class UserController {
   }
 
   @Post('/token/access')
+  @HttpCode(200)
   async rotateAccessToken(@Headers('authorization') token: string) {
+    // refresh token을 사용해서 access token을 갱신.
     const payload = await this.userService.parseBearerToken(token, true);
     const userId = payload.sub;
 

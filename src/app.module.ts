@@ -1,7 +1,13 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { BearerTokenMiddleware } from './user/middleware/bearer-token.middleware';
 
 @Module({
   imports: [
@@ -16,4 +22,20 @@ import * as Joi from 'joi';
   ], // 다른 곳에서 불러온다.
   exports: [], // 다른 곳에서 사용할 수 있도록 내보낸다.
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(BearerTokenMiddleware)
+      .exclude(
+        {
+          path: 'user/login',
+          method: RequestMethod.POST,
+        },
+        {
+          path: 'user/signup',
+          method: RequestMethod.POST,
+        },
+      )
+      .forRoutes('*');
+  }
+}
