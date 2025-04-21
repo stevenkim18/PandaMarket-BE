@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/CreateUserDto';
 import { LoginUserDto } from './dto/LoginUserDto';
@@ -16,5 +16,15 @@ export class UserController {
   @HttpCode(200)
   login(@Body() user: LoginUserDto) {
     return this.userService.login(user);
+  }
+
+  @Post('/token/access')
+  async rotateAccessToken(@Headers('authorization') token: string) {
+    const payload = await this.userService.parseBearerToken(token, true);
+    const userId = payload.sub;
+
+    return {
+      accessToken: await this.userService.issueToken({ id: userId }, false),
+    };
   }
 }

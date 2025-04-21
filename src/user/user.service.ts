@@ -52,33 +52,65 @@ export class UserService {
       throw new BadRequestException('비밀번호가 일치하지 않습니다.');
     }
 
+    return {
+      accessToken: await this.issueToken(existingUser, false),
+      refreshToken: await this.issueToken(existingUser, true),
+    };
+  }
+
+  async issueToken(user: { id: string }, isRefreshToken: boolean) {
     const accessTokenSecret =
       this.configService.get<string>('JWT_ACCESS_SECRET');
     const refreshTokenSecret =
       this.configService.get<string>('JWT_REFRESH_SECRET');
 
-    // password를 제외한 유저 정보
-    return {
-      accessToken: await this.jwtService.signAsync(
-        {
-          sub: existingUser.id,
-          type: 'access',
-        },
-        {
-          secret: accessTokenSecret,
-          expiresIn: '10m',
-        },
-      ),
-      refreshToken: await this.jwtService.signAsync(
-        {
-          sub: existingUser.id,
-          type: 'refresh',
-        },
-        {
-          secret: refreshTokenSecret,
-          expiresIn: '1d',
-        },
-      ),
-    };
+    const secret = isRefreshToken ? refreshTokenSecret : accessTokenSecret;
+    const expiresIn = isRefreshToken ? '1d' : '10m';
+
+    return this.jwtService.signAsync(
+      {
+        sub: user.id,
+        type: isRefreshToken ? 'refresh' : 'access',
+      },
+      {
+        secret,
+        expiresIn,
+      },
+    );
+  }
+
+  async parseBearerToken(rawToken: string, isRefreshToken: boolean) {
+    const bearerSplit = rawToken.split(' ');
+
+    if (bearerSplit.length !== 2) {
+      throw new BadRequestException('토큰 포맷이 잘못되었습니다.');
+    }
+
+    const [bearer, token] = bearerSplit;
+    console.log(bearer, token);
+
+    if (bearer !== 'Bearer') {
+      throw new BadRequestException('토큰 타입이 잘못되었습니다.');
+    }
+
+    const secret = isRefreshToken
+      ? this.configService.get<string>('JWT_REFRESH_SECRET')
+      : this.configService.get<string>('JWT_ACCESS_SECRET');
+
+    const payload = await this.jwtService.verifyAsync(token, {
+      secret,
+    });
+
+    if (isRefreshToken) {
+      if (payload.type !== 'refresh') {
+        throw new BadRequestException('리프레시 토큰이 아닙니다.');
+      }
+    } else {
+      if (payload.type !== 'access') {
+        throw new BadRequestException('엑세스 토큰이 아닙니다.');
+      }
+    }
+
+    return payload;
   }
 }

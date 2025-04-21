@@ -16,3 +16,10 @@ Content-Type: application/json
   "email": "stevenkim@gmail.com",
   "password": "12345678"
 }
+
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2NzlhMjNmNy01NjJjLTQ2Y2UtYWMwOS1mMGY1ODNkYmM4YTIiLCJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTc0NTIxMjI4MiwiZXhwIjoxNzQ1Mjk4NjgyfQ.bZC8FLpwijz8TOVrX0bk8XozgM9YA1W9GSlJ1_6G3CE
+
+### 엑세스 토큰 갱신
+POST http://localhost:4000/user/token/access
+Authorization: Bearer {{refreshToken}}
+
