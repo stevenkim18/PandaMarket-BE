@@ -114,4 +114,14 @@ export class UserService {
 
     return payload;
   }
+
+  async getUserById(id: string) {
+    try {
+      return this.prisma.user.findUnique({
+        where: { id },
+      });
+    } catch (error) {
+      throw new BadRequestException('없는 유저 입니다.');
+    }
+  }
 }

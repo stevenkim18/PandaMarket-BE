@@ -11,10 +11,12 @@ import { BearerTokenMiddleware } from './user/middleware/bearer-token.middleware
 import { ImageModule } from './image/image.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { PostModule } from './post/post.module';
 @Module({
   imports: [
     UserModule,
     ImageModule,
+    PostModule,
     ConfigModule.forRoot({
       isGlobal: true, // 전역에서 환경 변수 사용.
       validationSchema: Joi.object({
