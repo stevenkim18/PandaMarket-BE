@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsArray,
-  IsNotEmpty,
-  minLength,
-  MinLength,
-} from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, MinLength } from 'class-validator';
 
 export class CreatePostDto {
   @IsString()
