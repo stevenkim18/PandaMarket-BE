@@ -38,13 +38,12 @@ export class ImageController {
     }),
   ) // 여기 이름이랑 form-data 이름이랑 같아야 함.
   async uploadSingleImage(@UploadedFile() image: Express.Multer.File) {
-    console.log(image);
-
     if (!image) {
       throw new BadRequestException('이미지가 없습니다.');
     }
 
-    return '성공';
-    // return this.imageService.uploadSingleImage(image);
+    return {
+      filename: image.filename,
+    };
   }
 }
