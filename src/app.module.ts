@@ -12,11 +12,13 @@ import { ImageModule } from './image/image.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PostModule } from './post/post.module';
+import { CommentModule } from './comment/comment.module';
 @Module({
   imports: [
     UserModule,
     ImageModule,
     PostModule,
+    CommentModule,
     ConfigModule.forRoot({
       isGlobal: true, // 전역에서 환경 변수 사용.
       validationSchema: Joi.object({
