@@ -55,4 +55,18 @@ export class PostController {
   remove(@Param('id') id: string) {
     return this.postService.remove(id);
   }
+
+  @Post(':id/like')
+  createLike(@Param('id') postId: string, @Req() req: Request) {
+    const userId = req.user.sub;
+
+    return this.postService.createLike(postId, userId);
+  }
+
+  @Delete(':id/like')
+  deleteLike(@Param('id') postId: string, @Req() req: Request) {
+    const userId = req.user.sub;
+
+    return this.postService.deleteLike(postId, userId);
+  }
 }

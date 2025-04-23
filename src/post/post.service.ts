@@ -68,4 +68,24 @@ export class PostService {
       where: { id },
     });
   }
+
+  async createLike(postId: string, userId: string) {
+    return await this.prisma.boardLike.create({
+      data: {
+        boardId: postId,
+        userId,
+      },
+    });
+  }
+
+  async deleteLike(postId: string, userId: string) {
+    return await this.prisma.boardLike.delete({
+      where: {
+        userId_boardId: {
+          userId,
+          boardId: postId,
+        },
+      },
+    });
+  }
 }
