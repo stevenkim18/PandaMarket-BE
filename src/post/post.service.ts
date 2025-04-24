@@ -42,18 +42,87 @@ export class PostService {
     return board;
   }
 
-  async findAllPosts(dateSort: 'asc' | 'desc') {
-    return await this.prisma.board.findMany({
+  async findAllPosts(dateSort: 'asc' | 'desc', userId?: string) {
+    const posts = await this.prisma.board.findMany({
       orderBy: {
         createdAt: dateSort,
       },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        imageUrls: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            BoardLike: true,
+          },
+        },
+        ...(userId && {
+          BoardLike: {
+            where: {
+              userId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
+      },
     });
+
+    return posts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      imageUrls: post.imageUrls,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      likeCount: post._count.BoardLike,
+      isLiked: userId ? post.BoardLike.length > 0 : false,
+    }));
   }
 
-  async findOne(id: string) {
-    return await this.prisma.board.findUniqueOrThrow({
+  async findOne(id: string, userId?: string) {
+    const post = await this.prisma.board.findUniqueOrThrow({
       where: { id },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        imageUrls: true,
+        createdAt: true,
+        updatedAt: true,
+        // 좋아요 개수
+        _count: {
+          select: {
+            BoardLike: true,
+          },
+        },
+        ...(userId && {
+          BoardLike: {
+            where: {
+              userId,
+            },
+            select: {
+              userId: true,
+            },
+          },
+        }),
+      },
     });
+
+    return {
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      imageUrls: post.imageUrls,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      likeCount: post._count.BoardLike,
+      isLiked: userId ? post.BoardLike.length > 0 : false,
+    };
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {

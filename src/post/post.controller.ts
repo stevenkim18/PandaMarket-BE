@@ -36,14 +36,19 @@ export class PostController {
   }
 
   @Get()
-  findAllPosts(@Query('dateSort') dateSort: 'asc' | 'desc' = 'desc') {
-    // TODO: 나중에 좋아요로 정렬 추가
-    return this.postService.findAllPosts(dateSort);
+  findAllPosts(
+    @Query('dateSort') dateSort: 'asc' | 'desc' = 'desc',
+    @Req() req: Request,
+  ) {
+    // 요청에 인증된 사용자 정보가 있는 경우에만 userId 전달
+    const userId = req.user?.sub;
+    return this.postService.findAllPosts(dateSort, userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: Request) {
+    const userId = req.user?.sub;
+    return this.postService.findOne(id, userId);
   }
 
   @Patch(':id')
