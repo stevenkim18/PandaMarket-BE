@@ -8,26 +8,18 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { readdir, rename } from 'fs/promises';
 import { join } from 'path';
-
+import { ImageService } from 'src/image/image.service';
 @Injectable()
 export class PostService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly imageService: ImageService,
+  ) {}
 
   async createPost(createPostDto: CreatePostDto, userId: string) {
-    const imageFolder = join('public', 'images');
-    const tempFolder = join('public', 'temp');
-    const files = await readdir(imageFolder);
-
-    let existingImages: string[] = [];
-    // temp 폴더 안에 파일이 있으면 -> 미리 업로드 한 파일 -> 이미지 폴더로 이동(나중에는 S3로 이동할 파일들)
-    createPostDto.imageUrls.forEach(async (imageUrl) => {
-      if (!files.includes(imageUrl)) {
-        const tempfullPath = join(process.cwd(), tempFolder, imageUrl);
-        const imagefullPath = join(process.cwd(), imageFolder, imageUrl);
-        existingImages.push(join(imageFolder, imageUrl));
-        await rename(tempfullPath, imagefullPath);
-      }
-    });
+    const existingImages = await this.imageService.checkImagesExist(
+      createPostDto.imageUrls,
+    );
 
     const board = await this.prisma.board.create({
       data: {
