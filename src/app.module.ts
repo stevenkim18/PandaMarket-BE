@@ -13,6 +13,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
+import { ProductModule } from './product/product.module';
 @Module({
   imports: [
     UserModule,
@@ -30,6 +31,7 @@ import { CommentModule } from './comment/comment.module';
       rootPath: join(process.cwd(), 'public'), // public 폴더만 외부에 노출
       serveRoot: '/public/', // 위에rootPath를 지정하면 위 경로를 생략함, 외부에서 접근할 때 해당 경로를 앞에 붙여줘야 함.
     }),
+    ProductModule,
   ], // 다른 곳에서 불러온다.
   exports: [],
   controllers: [],
