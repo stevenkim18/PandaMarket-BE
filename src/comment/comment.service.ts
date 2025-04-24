@@ -7,23 +7,82 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CommentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(createCommentDto: CreateCommentDto, postId: string, userId: string) {
+  createPostComment(
+    createCommentDto: CreateCommentDto,
+    postId: string,
+    userId: string,
+  ) {
     return this.prisma.comment.create({
       data: {
         content: createCommentDto.content,
         boardId: postId,
         userId,
       },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 
-  findAll(postId: string) {
+  createProductComment(
+    createCommentDto: CreateCommentDto,
+    productId: string,
+    userId: string,
+  ) {
+    return this.prisma.comment.create({
+      data: {
+        content: createCommentDto.content,
+        productId: productId,
+        userId,
+      },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        productId: true,
+      },
+    });
+  }
+
+  findAllPostComment(postId: string) {
     return this.prisma.comment.findMany({
       where: {
         boardId: postId,
       },
       orderBy: {
         createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        boardId: true,
+      },
+    });
+  }
+
+  findAllProductComment(productId: string) {
+    return this.prisma.comment.findMany({
+      where: {
+        productId: productId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        productId: true,
       },
     });
   }
